@@ -14,8 +14,12 @@ namespace MapGenerator {
 
 			MapGenerator mapGenerator = target as MapGenerator;
 
-			if (GUILayout.Button ("Generate")) {
-				mapGenerator.GenerateMap ();
+			if (GUILayout.Button ("Generate from texture")) {
+				mapGenerator.GenerateFromTexture ();
+				SceneView.RepaintAll ();
+			}
+			if (GUILayout.Button ("Generate random")) {
+				mapGenerator.GenerateRandom ();
 				SceneView.RepaintAll ();
 			}
 		}

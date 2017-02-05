@@ -11,6 +11,13 @@ namespace MapGenerator {
 		[SerializeField] private MeshFilter meshFilter = null;
 		[SerializeField] private MeshRenderer meshRenderer = null;
 
+		[Header("Generate settings")]
+		[SerializeField] private int width = 25;
+		[SerializeField] private int height = 25;
+		[SerializeField] private int smoothIterations = 8;
+		[SerializeField] private int fillPercent = 50;
+		[SerializeField] private string seed = "";
+
 		[Header("Tile settings")]
 		[SerializeField] private Sprite[] spriteTiles = null;
 
@@ -21,17 +28,25 @@ namespace MapGenerator {
 		private Map map = null;
 		private MeshGenerator meshGenerator = null;
 
-		public void GenerateMap() {
+		public void GenerateFromTexture() {
 			if (mapTexture == null || meshFilter == null) return;
 
-			//map = MapReader.ReadMap (mapTexture);
-			map = MapReader.GenerateRandomMap(50, 50, 50, UnityEngine.Random.Range(0, 100000));
-			map = MapReader.SmoothMap (map, 8);
+			map = new Map (mapTexture);
 			meshGenerator = new MeshGenerator (map);
-
 			Mesh mesh = meshGenerator.GenerateMesh (spriteTiles);
-			meshFilter.mesh = mesh;
 
+			meshFilter.mesh = mesh;
+			meshRenderer.material = mapMaterial;
+		}
+
+		public void GenerateRandom() {
+			if (meshFilter == null) return;
+
+			map = new Map (width, height, fillPercent, seed, smoothIterations);
+			meshGenerator = new MeshGenerator (map);
+			Mesh mesh = meshGenerator.GenerateMesh (spriteTiles);
+
+			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
 		}
 
