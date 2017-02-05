@@ -46,6 +46,23 @@ namespace MapGenerator {
 			return squareGrid;
 		}
 
+		private void CreateVertex(Vector3 position) {
+			vertices.Add (position);
+		}
+
+		private void CreateTriangle(int i0, int i1, int i2) {
+			triangles.Add (i0);
+			triangles.Add (i1);
+			triangles.Add (i2);
+		}
+
+		private void CreateUvs(Vector2 i0, Vector2 i1, Vector2 i2, Vector2 i3) {
+			uvs.Add (i0);
+			uvs.Add (i1);
+			uvs.Add (i2);
+			uvs.Add (i3);
+		}
+
 		private void TriangulateQuad(Mesh mesh, Square square) {
 			int configuration = square.GetConfiguration ();
 			int spriteIndex = Mathf.Max (0, configuration);
@@ -53,104 +70,57 @@ namespace MapGenerator {
 			Sprite sprite = spriteTiles [spriteIndex];
 
 			if (configuration != 0) {
-				// top left
 				square.TopLeft.vertexIndex = vertices.Count;
-				vertices.Add (square.TopLeft.GetPosition());
+				CreateVertex(square.TopLeft.GetPosition());
 
-				// top right
 				square.TopRight.vertexIndex = vertices.Count;
-				vertices.Add (square.TopRight.GetPosition());
+				CreateVertex(square.TopRight.GetPosition());
 
-				// bottom right
 				square.BottomRight.vertexIndex = vertices.Count;
-				vertices.Add (square.BottomRight.GetPosition());
+				CreateVertex(square.BottomRight.GetPosition());
 
-				// bottom left
 				square.BottomLeft.vertexIndex = vertices.Count;
-				vertices.Add (square.BottomLeft.GetPosition());
+				CreateVertex(square.BottomLeft.GetPosition());
 
-				// right triangle
-				triangles.Add (square.TopLeft.vertexIndex);
-				triangles.Add (square.BottomRight.vertexIndex);
-				triangles.Add (square.TopRight.vertexIndex);
-
-				// left triangle
-				triangles.Add (square.TopLeft.vertexIndex);
-				triangles.Add (square.BottomLeft.vertexIndex);
-				triangles.Add (square.BottomRight.vertexIndex);
+				CreateTriangle(square.TopLeft.vertexIndex, square.BottomRight.vertexIndex, square.TopRight.vertexIndex);
+				CreateTriangle(square.TopLeft.vertexIndex, square.BottomLeft.vertexIndex, square.BottomRight.vertexIndex);
 
 				switch (configuration) {
-					case 1:
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
+				case 1:
+						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
 						break;
 					case 2:
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
+						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
 						break;
 					case 3:
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
+						CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
 						break;
 					case 4:
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
+						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
 						break;
 					case 6:
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
+						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
 						break;
 					case 7:
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
+						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
 						break;
 					case 8:
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
+						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
 						break;
 					case 9:
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
+						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
 						break;
 					case 11:
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
+						CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
 						break;
 					case 12:
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
+						CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
 						break;
 					case 13:
-						uvs.Add (sprite.uv [3]);
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
+						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
 						break;
 					default:
-						uvs.Add (sprite.uv [1]);
-						uvs.Add (sprite.uv [0]);
-						uvs.Add (sprite.uv [2]);
-						uvs.Add (sprite.uv [3]);
+						CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
 						break;
 				}
 			}
