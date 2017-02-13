@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace MapGenerator {
+namespace MapGenerator
+{
 	
-	public class MeshGenerator {
+	public class MeshGenerator
+	{
 
 		private SquareGrid squareGrid = null;
 
@@ -14,11 +16,13 @@ namespace MapGenerator {
 
 		private Sprite[] spriteTiles;
 
-		public MeshGenerator(Map map) {
+		public MeshGenerator (Map map)
+		{
 			squareGrid = new SquareGrid (map);
 		}
 
-		public Mesh GenerateMesh(Sprite[] spriteTiles) {
+		public Mesh GenerateMesh (Sprite[] spriteTiles)
+		{
 			mesh = new Mesh ();
 			this.spriteTiles = spriteTiles;
 
@@ -42,28 +46,57 @@ namespace MapGenerator {
 			return mesh;
 		}
 
-		public SquareGrid GetSquareGrid() {
+		public Mesh GenerateMeshRounded (Sprite[] spriteTiles)
+		{
+			mesh = new Mesh ();
+			this.spriteTiles = spriteTiles;
+
+			vertices = new List<Vector3> ();
+			uvs = new List<Vector2> ();
+			triangles = new List<int> ();
+
+			for (int y = 0; y < squareGrid.height; y++) {
+				for (int x = 0; x < squareGrid.width; x++) {
+					TriangulateQuadRounded (mesh, squareGrid.GetSquare (x, y));
+				}
+			}
+
+			mesh.vertices = vertices.ToArray ();
+			mesh.uv = uvs.ToArray ();
+			mesh.triangles = triangles.ToArray ();
+
+			mesh.RecalculateNormals ();
+			mesh.RecalculateBounds ();
+
+			return mesh;
+		}
+
+		public SquareGrid GetSquareGrid ()
+		{
 			return squareGrid;
 		}
 
-		private void CreateVertex(Vector3 position) {
+		private void CreateVertex (Vector3 position)
+		{
 			vertices.Add (position);
 		}
 
-		private void CreateTriangle(int i0, int i1, int i2) {
+		private void CreateTriangle (int i0, int i1, int i2)
+		{
 			triangles.Add (i0);
 			triangles.Add (i1);
 			triangles.Add (i2);
 		}
 
-		private void CreateUvs(Vector2 i0, Vector2 i1, Vector2 i2, Vector2 i3) {
-			uvs.Add (i0);
-			uvs.Add (i1);
-			uvs.Add (i2);
-			uvs.Add (i3);
+		private void CreateUvs (params Vector2[] uv)
+		{
+			for (int i = 0; i < uv.Length; i++) {
+				uvs.Add (uv [i]);
+			}
 		}
 
-		private void TriangulateQuad(Mesh mesh, Square square) {
+		private void TriangulateQuad (Mesh mesh, Square square)
+		{
 			int configuration = square.GetConfiguration ();
 			int spriteIndex = Mathf.Max (0, configuration);
 
@@ -71,57 +104,84 @@ namespace MapGenerator {
 
 			if (configuration != 0) {
 				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex(square.TopLeft.GetPosition());
+				CreateVertex (square.TopLeft.GetPosition ());
 
 				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex(square.TopRight.GetPosition());
+				CreateVertex (square.TopRight.GetPosition ());
 
 				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex(square.BottomRight.GetPosition());
+				CreateVertex (square.BottomRight.GetPosition ());
 
 				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex(square.BottomLeft.GetPosition());
+				CreateVertex (square.BottomLeft.GetPosition ());
 
-				CreateTriangle(square.TopLeft.vertexIndex, square.BottomRight.vertexIndex, square.TopRight.vertexIndex);
-				CreateTriangle(square.TopLeft.vertexIndex, square.BottomLeft.vertexIndex, square.BottomRight.vertexIndex);
+				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.BottomRight.vertexIndex);
+				CreateTriangle (square.TopLeft.vertexIndex, square.BottomRight.vertexIndex, square.BottomLeft.vertexIndex);
 
 				switch (configuration) {
 				case 1:
-						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
-						break;
-					case 2:
-						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
-						break;
-					case 3:
-						CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
-						break;
-					case 4:
-						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
-						break;
-					case 6:
-						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
-						break;
-					case 7:
-						CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
-						break;
-					case 8:
-						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
-						break;
-					case 9:
-						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
-						break;
-					case 11:
-						CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
-						break;
-					case 12:
-						CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
-						break;
-					case 13:
-						CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
-						break;
-					default:
-						CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
-						break;
+					CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
+					break;
+				case 2:
+					CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
+					break;
+				case 3:
+					CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
+					break;
+				case 4:
+					CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
+					break;
+				case 6:
+					CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
+					break;
+				case 7:
+					CreateUvs (sprite.uv [0], sprite.uv [2], sprite.uv [3], sprite.uv [1]);
+					break;
+				case 8:
+					CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
+					break;
+				case 9:
+					CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
+					break;
+				case 11:
+					CreateUvs (sprite.uv [2], sprite.uv [3], sprite.uv [1], sprite.uv [0]);
+					break;
+				case 12:
+					CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
+					break;
+				case 13:
+					CreateUvs (sprite.uv [3], sprite.uv [1], sprite.uv [0], sprite.uv [2]);
+					break;
+				default:
+					CreateUvs (sprite.uv [1], sprite.uv [0], sprite.uv [2], sprite.uv [3]);
+					break;
+				}
+			}
+		}
+
+		private void TriangulateQuadRounded (Mesh mesh, Square square)
+		{
+			int configuration = square.GetConfiguration ();
+
+			if (configuration == 4) {
+				square.BottomRight.vertexIndex = vertices.Count;
+				CreateVertex (square.BottomRight.GetPosition ());
+				CreateUvs (Vector2.zero);
+
+				float cx = square.BottomRight.GetPosition ().x;
+				float cy = square.BottomRight.GetPosition ().z;
+				float r = 0.5f;
+				float sa = Mathf.PI;
+				float ea = Mathf.PI * 0.5f;
+				float ad = Mathf.Abs (sa - ea) / 11;
+
+				for (float i = sa; i >= ea; i -= ad) {
+					float x = cx + r * Mathf.Cos (i);
+					float y = cy + r * Mathf.Sin (i);
+					Debug.Log (x + " : " + y);
+					CreateVertex (new Vector3 (x, 0, y));
+					CreateTriangle (square.BottomRight.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+					CreateUvs (Vector2.zero);
 				}
 			}
 		}
