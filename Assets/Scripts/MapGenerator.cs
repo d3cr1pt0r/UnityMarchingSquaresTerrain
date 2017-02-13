@@ -52,7 +52,7 @@ namespace MapGenerator
 
 			map = new Map (width, height, fillPercent, seed, smoothIterations);
 			meshGenerator = new MeshGenerator (map);
-			Mesh mesh = meshGenerator.GenerateMesh (spriteTiles);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles);
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;

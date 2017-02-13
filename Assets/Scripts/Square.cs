@@ -18,6 +18,7 @@ namespace MapGenerator
 
 		private Vector3 position;
 		private int configuration;
+		public int vertexIndex;
 
 		public Square (ControlNode topLeft, ControlNode topRight, ControlNode bottomRight, ControlNode bottomLeft, Vector3 position = default(Vector3))
 		{
@@ -32,6 +33,8 @@ namespace MapGenerator
 			RightCenter = bottomRight.nodeUp;
 			BottomCenter = bottomLeft.nodeRight;
 			LeftCenter = bottomLeft.nodeUp;
+
+			vertexIndex = -1;
 
 			configuration = topLeft.value | (topRight.value << 1) | (bottomRight.value << 2) | (bottomLeft.value << 3);
 		}
