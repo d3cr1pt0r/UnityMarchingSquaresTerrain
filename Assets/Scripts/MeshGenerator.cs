@@ -178,113 +178,59 @@ namespace MapGenerator
 			int configuration = square.GetConfiguration ();
 
 			if (configuration == 1) {
-				CreateRoundCornerConvex (square.TopLeft.GetPosition (), radius, roundSteps, CornerSide.BottomRight);
+				CreateRoundCornerConvex (square, CornerSide.BottomRight, radius, roundSteps);
 			}
 			if (configuration == 2) {
-				CreateRoundCornerConvex (square.TopRight.GetPosition (), radius, roundSteps, CornerSide.BottomLeft);
+				CreateRoundCornerConvex (square, CornerSide.BottomLeft, radius, roundSteps);
 			}
 			if (configuration == 3) {
-				TriangulateMesh (square.TopLeft, square.TopRight, square.RightCenter, square.LeftCenter);
+				TriangulateMesh (square, square.TopLeft, square.TopRight, square.RightCenter, square.LeftCenter);
 			}
 			if (configuration == 4) {
-				CreateRoundCornerConvex (square.BottomRight.GetPosition (), radius, roundSteps, CornerSide.TopLeft);
+				CreateRoundCornerConvex (square, CornerSide.TopLeft, radius, roundSteps);
 			}
 			if (configuration == 5) {
-				TriangulateMesh (square.TopLeft, square.TopCenter, square.RightCenter, square.BottomRight, square.BottomCenter, square.LeftCenter);
+				TriangulateMesh (square, square.TopLeft, square.TopCenter, square.RightCenter, square.BottomRight, square.BottomCenter, square.LeftCenter);
 			}
 			if (configuration == 6) {
-				TriangulateMesh (square.TopCenter, square.TopRight, square.BottomRight, square.BottomCenter);
+				TriangulateMesh (square, square.TopCenter, square.TopRight, square.BottomRight, square.BottomCenter);
 			}
 			if (configuration == 7) {
-				TriangulateMesh (square.TopRight, square.BottomRight, square.BottomCenter);
-				TriangulateMesh (square.TopRight, square.LeftCenter, square.TopLeft);
-
-				CreateVertex (square.TopRight);
-				CreateUvs (Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.BottomLeft.GetPosition (), 0.5f, roundSteps, CornerSide.TopRight);
-				for (int i = 0; i < arcVertices.Count; i++) {
-					CreateVertex (arcVertices [i]);
-					CreateUvs (Vector2.zero);
-
-					if (i > 0) {
-						CreateTriangle (square.TopRight.vertexIndex, vertices.Count - 2, vertices.Count - 1);
-					}
-				}
+				CreateRoundCornerConcave (square, CornerSide.TopRight, radius, roundSteps);
 			}
 			if (configuration == 8) {
-				CreateRoundCornerConvex (square.BottomLeft.GetPosition (), radius, roundSteps, CornerSide.TopRight);
+				CreateRoundCornerConvex (square, CornerSide.TopRight, radius, roundSteps);
 			}
 			if (configuration == 9) {
-				TriangulateMesh (square.TopLeft, square.TopCenter, square.BottomCenter, square.BottomLeft);
+				TriangulateMesh (square, square.TopLeft, square.TopCenter, square.BottomCenter, square.BottomLeft);
 			}
 			if (configuration == 10) {
-				TriangulateMesh (square.TopRight, square.RightCenter, square.BottomCenter, square.BottomLeft, square.LeftCenter, square.TopCenter);
+				TriangulateMesh (square, square.TopRight, square.RightCenter, square.BottomCenter, square.BottomLeft, square.LeftCenter, square.TopCenter);
 			}
 			if (configuration == 11) {
-				TriangulateMesh (square.TopLeft, square.TopRight, square.RightCenter);
-				TriangulateMesh (square.TopLeft, square.BottomCenter, square.BottomLeft);
-
-				CreateVertex (square.TopLeft);
-				CreateUvs (Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.BottomRight.GetPosition (), radius, roundSteps, CornerSide.TopLeft);
-				for (int i = 0; i < arcVertices.Count; i++) {
-					CreateVertex (arcVertices [i]);
-					CreateUvs (Vector2.zero);
-
-					if (i > 0) {
-						CreateTriangle (square.TopLeft.vertexIndex, vertices.Count - 2, vertices.Count - 1);
-					}
-				}
+				CreateRoundCornerConcave (square, CornerSide.TopLeft, radius, roundSteps);
 			}
 			if (configuration == 12) {
-				TriangulateMesh (square.LeftCenter, square.RightCenter, square.BottomRight, square.BottomLeft);
+				TriangulateMesh (square, square.LeftCenter, square.RightCenter, square.BottomRight, square.BottomLeft);
 			}
 			if (configuration == 13) {
-				TriangulateMesh (square.BottomLeft, square.TopLeft, square.TopCenter);
-				TriangulateMesh (square.BottomLeft, square.RightCenter, square.BottomRight);
-
-				CreateVertex (square.BottomLeft);
-				CreateUvs (Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.TopRight.GetPosition (), radius, roundSteps, CornerSide.BottomLeft);
-				for (int i = 0; i < arcVertices.Count; i++) {
-					CreateVertex (arcVertices [i]);
-					CreateUvs (Vector2.zero);
-
-					if (i > 0) {
-						CreateTriangle (square.BottomLeft.vertexIndex, vertices.Count - 2, vertices.Count - 1);
-					}
-				}
+				CreateRoundCornerConcave (square, CornerSide.BottomLeft, radius, roundSteps);
 			}
 			if (configuration == 14) {
-				TriangulateMesh (square.BottomRight, square.TopCenter, square.TopRight);
-				TriangulateMesh (square.BottomRight, square.BottomLeft, square.LeftCenter);
-
-				CreateVertex (square.BottomRight);
-				CreateUvs (Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.TopLeft.GetPosition (), radius, roundSteps, CornerSide.BottomRight);
-				for (int i = 0; i < arcVertices.Count; i++) {
-					CreateVertex (arcVertices [i]);
-					CreateUvs (Vector2.zero);
-
-					if (i > 0) {
-						CreateTriangle (square.BottomRight.vertexIndex, vertices.Count - 2, vertices.Count - 1);
-					}
-				}
+				CreateRoundCornerConcave (square, CornerSide.BottomRight, radius, roundSteps);
 			}
 			if (configuration == 15) {
-				TriangulateMesh (square.TopLeft, square.TopRight, square.BottomRight, square.BottomLeft);
+				TriangulateMesh (square, square.TopLeft, square.TopRight, square.BottomRight, square.BottomLeft);
 			}
 		}
 
-		private void TriangulateMesh (params Node[] nodes)
+		private void TriangulateMesh (Square square, params Node[] nodes)
 		{
 			for (int i = 0; i < nodes.Length; i++) {
+				Vector2 uv = new Vector2 (nodes [i].GetPosition ().x - square.BottomLeft.GetPosition ().x, nodes [i].GetPosition ().z - square.BottomLeft.GetPosition ().z);
+
 				CreateVertex (nodes [i]);
-				CreateUvs (Vector2.zero);
+				CreateUvs (uv);
 			}
 
 			if (nodes.Length >= 3) {
@@ -301,23 +247,103 @@ namespace MapGenerator
 			}
 		}
 
-		private void CreateRoundCornerConvex (Vector3 position, float radius, int steps, CornerSide cornerSide)
+		private void CreateRoundCornerConvex (Square square, CornerSide cornerSide, float radius, int steps)
 		{
+			Vector3 position = Vector3.one;
+
+			if (cornerSide == CornerSide.TopLeft) {
+				position = square.BottomRight.GetPosition ();
+			}
+			if (cornerSide == CornerSide.TopRight) {
+				position = square.BottomLeft.GetPosition ();
+			}
+			if (cornerSide == CornerSide.BottomRight) {
+				position = square.TopLeft.GetPosition ();
+			}
+			if (cornerSide == CornerSide.BottomLeft) {
+				position = square.TopRight.GetPosition ();
+			}
+
 			List<Vector3> arcVertices = GetArcVertices (position, radius, steps, cornerSide);
 			int cornerIndex = CreateVertex (position);
 
-			CreateUvs (Vector2.zero);
+			Vector2 cornerUv = new Vector2 (position.x - square.BottomLeft.GetPosition ().x, position.z - square.BottomLeft.GetPosition ().z);
+			CreateUvs (cornerUv);
 
 			for (int i = 0; i < arcVertices.Count; i++) {
+				Vector2 uv = new Vector2 (arcVertices [i].x - square.BottomLeft.GetPosition ().x, arcVertices [i].z - square.BottomLeft.GetPosition ().z);
+
 				CreateVertex (arcVertices [i]);
 				CreateTriangle (cornerIndex, vertices.Count - 1, vertices.Count - 2);
-				CreateUvs (Vector2.zero);
+				CreateUvs (uv);
 			}
 		}
 
-		private void CreateRoundCornerConcave (Vector3 position, float radius, int steps, CornerSide cornerSide)
+		private void CreateRoundCornerConcave (Square square, CornerSide cornerSide, float radius, int steps)
 		{
-			
+			Vector3 arcPosition = Vector3.zero;
+			Node n0 = null;
+			Node n1 = null;
+			Node n2 = null;
+			Node n3 = null;
+			Node n4 = null;
+
+			if (cornerSide == CornerSide.TopLeft) {
+				arcPosition = square.BottomRight.GetPosition ();
+
+				n0 = square.TopLeft;
+				n1 = square.BottomCenter;
+				n2 = square.BottomLeft;
+				n3 = square.TopRight;
+				n4 = square.RightCenter;
+			}
+			if (cornerSide == CornerSide.TopRight) {
+				arcPosition = square.BottomLeft.GetPosition ();
+
+				n0 = square.TopRight;
+				n1 = square.LeftCenter;
+				n2 = square.TopLeft;
+				n3 = square.BottomRight;
+				n4 = square.BottomCenter;
+			}
+			if (cornerSide == CornerSide.BottomRight) {
+				arcPosition = square.TopLeft.GetPosition ();
+
+				n0 = square.BottomRight;
+				n1 = square.TopCenter;
+				n2 = square.TopRight;
+				n3 = square.BottomLeft;
+				n4 = square.LeftCenter;
+			}
+			if (cornerSide == CornerSide.BottomLeft) {
+				arcPosition = square.TopRight.GetPosition ();
+
+				n0 = square.BottomLeft;
+				n1 = square.TopLeft;
+				n2 = square.TopCenter;
+				n3 = square.RightCenter;
+				n4 = square.BottomRight;
+			}
+
+			TriangulateMesh (square, n0, n1, n2);
+			TriangulateMesh (square, n0, n3, n4);
+
+			CreateVertex (n0);
+
+			Vector2 cornerUv = new Vector2 (n0.GetPosition ().x - square.BottomLeft.GetPosition ().x, n0.GetPosition ().z - square.BottomLeft.GetPosition ().z);
+			CreateUvs (cornerUv);
+
+			List<Vector3> arcVertices = GetArcVertices (arcPosition, radius, roundSteps, cornerSide);
+			for (int i = 0; i < arcVertices.Count; i++) {
+				Vector2 uv = new Vector2 (arcVertices [i].x - square.BottomLeft.GetPosition ().x, arcVertices [i].z - square.BottomLeft.GetPosition ().z);
+				CreateVertex (arcVertices [i]);
+				CreateUvs (uv);
+
+				if (i > 0) {
+					CreateTriangle (n0.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+				}
+			}
+
 		}
 
 		private List<Vector3> GetArcVertices (Vector3 position, float radius, int steps, CornerSide cornerSide)
