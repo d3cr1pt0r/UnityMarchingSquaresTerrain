@@ -24,6 +24,8 @@ namespace MapGenerator
 		[SerializeField] private Sprite[] spriteTiles = null;
 
 		[Header ("Debug")]
+		[SerializeField] private GameObject DebugNumberPrefab = null;
+		[SerializeField] private bool configurationNumberDebug = false;
 		[SerializeField] private bool squaresDebug = false;
 		[SerializeField] private bool controlNodesDebug = false;
 		[SerializeField] private bool sideNodesDebug = false;
@@ -39,10 +41,14 @@ namespace MapGenerator
 
 			map = new Map (mapTexture);
 			meshGenerator = new MeshGenerator (map);
-			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles, 11);
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
+
+			if (configurationNumberDebug) {
+				GenerateConfigurationNumberDebug ();
+			}
 		}
 
 		public void GenerateRandom ()
@@ -52,10 +58,29 @@ namespace MapGenerator
 
 			map = new Map (width, height, fillPercent, seed, smoothIterations);
 			meshGenerator = new MeshGenerator (map);
-			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles, 11);
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
+
+			if (configurationNumberDebug) {
+				GenerateConfigurationNumberDebug ();
+			}
+		}
+
+		private void GenerateConfigurationNumberDebug ()
+		{
+			SquareGrid squareGrid = meshGenerator.GetSquareGrid ();
+
+			for (int y = 0; y < squareGrid.height; y++) {
+				for (int x = 0; x < squareGrid.width; x++) {
+					int configuration = squareGrid.GetSquare (x, y).GetConfiguration ();
+					Vector3 position = squareGrid.GetSquare (x, y).GetPosition ();
+
+					GameObject go = Instantiate (DebugNumberPrefab, position, Quaternion.Euler (new Vector3 (90, 0, 0)));
+					go.GetComponent<TextMesh> ().text = configuration.ToString ();
+				}
+			}
 		}
 
 		private void OnDrawGizmos ()

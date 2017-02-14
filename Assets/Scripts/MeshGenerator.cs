@@ -6,7 +6,8 @@ namespace MapGenerator
 	
 	public class MeshGenerator
 	{
-		enum CornerSide {
+		enum CornerSide
+		{
 			TopLeft,
 			TopRight,
 			BottomRight,
@@ -21,6 +22,8 @@ namespace MapGenerator
 		private List<int> triangles = new List<int> (0);
 
 		private Sprite[] spriteTiles;
+		private int roundSteps;
+		private float radius = 0.5f;
 
 		public MeshGenerator (Map map)
 		{
@@ -52,11 +55,12 @@ namespace MapGenerator
 			return mesh;
 		}
 
-		public Mesh GenerateMeshRounded (Sprite[] spriteTiles)
+		public Mesh GenerateMeshRounded (Sprite[] spriteTiles, int roundSteps)
 		{
-			mesh = new Mesh ();
 			this.spriteTiles = spriteTiles;
+			this.roundSteps = roundSteps;
 
+			mesh = new Mesh ();
 			vertices = new List<Vector3> ();
 			uvs = new List<Vector2> ();
 			triangles = new List<int> ();
@@ -82,9 +86,20 @@ namespace MapGenerator
 			return squareGrid;
 		}
 
-		private void CreateVertex (Vector3 position)
+		private int CreateVertex (Vector3 position)
 		{
+			int index = vertices.Count;
 			vertices.Add (position);
+
+			return index;
+		}
+
+		private int CreateVertex (Node node)
+		{
+			node.vertexIndex = vertices.Count;
+			CreateVertex (node.GetPosition ());
+
+			return node.vertexIndex;
 		}
 
 		private void CreateTriangle (int i0, int i1, int i2)
@@ -109,17 +124,10 @@ namespace MapGenerator
 			Sprite sprite = spriteTiles [spriteIndex];
 
 			if (configuration != 0) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
-
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
+				CreateVertex (square.TopLeft);
+				CreateVertex (square.TopRight);
+				CreateVertex (square.BottomRight);
+				CreateVertex (square.BottomLeft);
 
 				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.BottomRight.vertexIndex);
 				CreateTriangle (square.TopLeft.vertexIndex, square.BottomRight.vertexIndex, square.BottomLeft.vertexIndex);
@@ -170,375 +178,153 @@ namespace MapGenerator
 			int configuration = square.GetConfiguration ();
 
 			if (configuration == 1) {
-				CreateRoundCorner (square.TopLeft.GetPosition (), 0.5f, 11, CornerSide.BottomRight);
+				CreateRoundCornerConvex (square.TopLeft.GetPosition (), radius, roundSteps, CornerSide.BottomRight);
 			}
 			if (configuration == 2) {
-				CreateRoundCorner (square.TopRight.GetPosition (), 0.5f, 11, CornerSide.BottomLeft);
+				CreateRoundCornerConvex (square.TopRight.GetPosition (), radius, roundSteps, CornerSide.BottomLeft);
 			}
 			if (configuration == 3) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
-
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.RightCenter.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.RightCenter.vertexIndex, square.LeftCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopLeft, square.TopRight, square.RightCenter, square.LeftCenter);
 			}
 			if (configuration == 4) {
-				CreateRoundCorner (square.BottomRight.GetPosition (), 0.5f, 11, CornerSide.TopLeft);
+				CreateRoundCornerConvex (square.BottomRight.GetPosition (), radius, roundSteps, CornerSide.TopLeft);
 			}
 			if (configuration == 5) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
-
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopCenter.vertexIndex, square.LeftCenter.vertexIndex);
-				CreateTriangle (square.RightCenter.vertexIndex, square.BottomRight.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.TopCenter.vertexIndex, square.RightCenter.vertexIndex, square.LeftCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.RightCenter.vertexIndex, square.BottomCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopLeft, square.TopCenter, square.RightCenter, square.BottomRight, square.BottomCenter, square.LeftCenter);
 			}
 			if (configuration == 6) {
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				CreateTriangle (square.TopCenter.vertexIndex, square.TopRight.vertexIndex, square.BottomRight.vertexIndex);
-				CreateTriangle (square.TopCenter.vertexIndex, square.BottomRight.vertexIndex, square.BottomCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopCenter, square.TopRight, square.BottomRight, square.BottomCenter);
 			}
 			if (configuration == 7) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
+				TriangulateMesh (square.TopRight, square.BottomRight, square.BottomCenter);
+				TriangulateMesh (square.TopRight, square.LeftCenter, square.TopLeft);
 
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
+				CreateVertex (square.TopRight);
+				CreateUvs (Vector2.zero);
 
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				square.vertexIndex = vertices.Count;
-				CreateVertex (square.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.RightCenter.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.RightCenter.vertexIndex, square.LeftCenter.vertexIndex);
-				CreateTriangle (square.vertexIndex, square.RightCenter.vertexIndex, square.BottomRight.vertexIndex);
-				CreateTriangle (square.vertexIndex, square.BottomRight.vertexIndex, square.BottomCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.BottomLeft.GetPosition (), 0.5f, 11, CornerSide.TopRight);
+				List<Vector3> arcVertices = GetArcVertices (square.BottomLeft.GetPosition (), 0.5f, roundSteps, CornerSide.TopRight);
 				for (int i = 0; i < arcVertices.Count; i++) {
 					CreateVertex (arcVertices [i]);
 					CreateUvs (Vector2.zero);
 
 					if (i > 0) {
-						CreateTriangle (square.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+						CreateTriangle (square.TopRight.vertexIndex, vertices.Count - 2, vertices.Count - 1);
 					}
 				}
 			}
 			if (configuration == 8) {
-				CreateRoundCorner (square.BottomLeft.GetPosition (), 0.5f, 11, CornerSide.TopRight);
+				CreateRoundCornerConvex (square.BottomLeft.GetPosition (), radius, roundSteps, CornerSide.TopRight);
 			}
 			if (configuration == 9) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopCenter.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.BottomCenter.vertexIndex, square.BottomLeft.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopLeft, square.TopCenter, square.BottomCenter, square.BottomLeft);
 			}
 			if (configuration == 10) {
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				CreateTriangle (square.TopCenter.vertexIndex, square.TopRight.vertexIndex, square.RightCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.BottomCenter.vertexIndex, square.BottomLeft.vertexIndex);
-				CreateTriangle (square.TopCenter.vertexIndex, square.RightCenter.vertexIndex, square.LeftCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.RightCenter.vertexIndex, square.BottomCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopRight, square.RightCenter, square.BottomCenter, square.BottomLeft, square.LeftCenter, square.TopCenter);
 			}
 			if (configuration == 11) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
+				TriangulateMesh (square.TopLeft, square.TopRight, square.RightCenter);
+				TriangulateMesh (square.TopLeft, square.BottomCenter, square.BottomLeft);
 
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
+				CreateVertex (square.TopLeft);
+				CreateUvs (Vector2.zero);
 
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				square.vertexIndex = vertices.Count;
-				CreateVertex (square.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.RightCenter.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.RightCenter.vertexIndex, square.LeftCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.BottomCenter.vertexIndex, square.BottomLeft.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.BottomRight.GetPosition (), 0.5f, 11, CornerSide.TopLeft);
+				List<Vector3> arcVertices = GetArcVertices (square.BottomRight.GetPosition (), radius, roundSteps, CornerSide.TopLeft);
 				for (int i = 0; i < arcVertices.Count; i++) {
 					CreateVertex (arcVertices [i]);
 					CreateUvs (Vector2.zero);
 
 					if (i > 0) {
-						CreateTriangle (square.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+						CreateTriangle (square.TopLeft.vertexIndex, vertices.Count - 2, vertices.Count - 1);
 					}
 				}
 			}
 			if (configuration == 12) {
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				CreateTriangle (square.LeftCenter.vertexIndex, square.BottomRight.vertexIndex, square.BottomLeft.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.RightCenter.vertexIndex, square.BottomRight.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.LeftCenter, square.RightCenter, square.BottomRight, square.BottomLeft);
 			}
 			if (configuration == 13) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
+				TriangulateMesh (square.BottomLeft, square.TopLeft, square.TopCenter);
+				TriangulateMesh (square.BottomLeft, square.RightCenter, square.BottomRight);
 
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
+				CreateVertex (square.BottomLeft);
+				CreateUvs (Vector2.zero);
 
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.RightCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.RightCenter.GetPosition ());
-
-				square.vertexIndex = vertices.Count;
-				CreateVertex (square.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopCenter.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.BottomCenter.vertexIndex, square.BottomLeft.vertexIndex);
-				CreateTriangle (square.vertexIndex, square.RightCenter.vertexIndex, square.BottomRight.vertexIndex);
-				CreateTriangle (square.vertexIndex, square.BottomRight.vertexIndex, square.BottomCenter.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.TopRight.GetPosition (), 0.5f, 11, CornerSide.BottomLeft);
+				List<Vector3> arcVertices = GetArcVertices (square.TopRight.GetPosition (), radius, roundSteps, CornerSide.BottomLeft);
 				for (int i = 0; i < arcVertices.Count; i++) {
 					CreateVertex (arcVertices [i]);
 					CreateUvs (Vector2.zero);
 
 					if (i > 0) {
-						CreateTriangle (square.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+						CreateTriangle (square.BottomLeft.vertexIndex, vertices.Count - 2, vertices.Count - 1);
 					}
 				}
 			}
 			if (configuration == 14) {
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
+				TriangulateMesh (square.BottomRight, square.TopCenter, square.TopRight);
+				TriangulateMesh (square.BottomRight, square.BottomLeft, square.LeftCenter);
 
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
+				CreateVertex (square.BottomRight);
+				CreateUvs (Vector2.zero);
 
-				square.TopCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.TopCenter.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.LeftCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.LeftCenter.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				square.BottomCenter.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomCenter.GetPosition ());
-
-				square.vertexIndex = vertices.Count;
-				CreateVertex (square.GetPosition ());
-
-				CreateTriangle (square.TopCenter.vertexIndex, square.TopRight.vertexIndex, square.BottomRight.vertexIndex);
-				CreateTriangle (square.TopCenter.vertexIndex, square.BottomRight.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.vertexIndex, square.BottomCenter.vertexIndex);
-				CreateTriangle (square.LeftCenter.vertexIndex, square.BottomCenter.vertexIndex, square.BottomLeft.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-
-				List<Vector3> arcVertices = GetArcVertices (square.TopLeft.GetPosition (), 0.5f, 11, CornerSide.BottomRight);
+				List<Vector3> arcVertices = GetArcVertices (square.TopLeft.GetPosition (), radius, roundSteps, CornerSide.BottomRight);
 				for (int i = 0; i < arcVertices.Count; i++) {
 					CreateVertex (arcVertices [i]);
 					CreateUvs (Vector2.zero);
 
 					if (i > 0) {
-						CreateTriangle (square.vertexIndex, vertices.Count - 2, vertices.Count - 1);
+						CreateTriangle (square.BottomRight.vertexIndex, vertices.Count - 2, vertices.Count - 1);
 					}
 				}
 			}
 			if (configuration == 15) {
-				square.TopLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.TopLeft.GetPosition ());
-
-				square.TopRight.vertexIndex = vertices.Count;
-				CreateVertex (square.TopRight.GetPosition ());
-
-				square.BottomRight.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomRight.GetPosition ());
-
-				square.BottomLeft.vertexIndex = vertices.Count;
-				CreateVertex (square.BottomLeft.GetPosition ());
-
-				CreateTriangle (square.TopLeft.vertexIndex, square.TopRight.vertexIndex, square.BottomRight.vertexIndex);
-				CreateTriangle (square.TopLeft.vertexIndex, square.BottomRight.vertexIndex, square.BottomLeft.vertexIndex);
-
-				CreateUvs (Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+				TriangulateMesh (square.TopLeft, square.TopRight, square.BottomRight, square.BottomLeft);
 			}
 		}
 
-		private void CreateRoundCorner(Vector3 position, float radius, int steps, CornerSide corner) {
-			float angleFrom = 0;
-			float angleTo = 0;
-			float fix = 0;
-
-			if (corner == CornerSide.TopLeft) {
-				angleFrom = Mathf.PI / 2.0f;
-				angleTo = Mathf.PI;
-			}
-			if (corner == CornerSide.TopRight) {
-				angleFrom = 0;
-				angleTo = Mathf.PI / 2.0f;
-			}
-			if (corner == CornerSide.BottomRight) {
-				angleFrom = (3.0f * Mathf.PI) / 2.0f;
-				angleTo = Mathf.PI * 2.0f;
-				fix = Mathf.Abs(angleFrom - angleTo) / (float)steps;
-			}
-			if (corner == CornerSide.BottomLeft) {
-				angleFrom = Mathf.PI;
-				angleTo = (3.0f * Mathf.PI) / 2.0f;
-				fix = Mathf.Abs(angleFrom - angleTo) / (float)steps;
+		private void TriangulateMesh (params Node[] nodes)
+		{
+			for (int i = 0; i < nodes.Length; i++) {
+				CreateVertex (nodes [i]);
+				CreateUvs (Vector2.zero);
 			}
 
-			int cornerIndex = vertices.Count;
-			float angleStep = Mathf.Abs(angleFrom - angleTo) / (float)steps;
+			if (nodes.Length >= 3) {
+				CreateTriangle (nodes [0].vertexIndex, nodes [1].vertexIndex, nodes [2].vertexIndex);
+			}
+			if (nodes.Length >= 4) {
+				CreateTriangle (nodes [0].vertexIndex, nodes [2].vertexIndex, nodes [3].vertexIndex);
+			}
+			if (nodes.Length >= 5) {
+				CreateTriangle (nodes [0].vertexIndex, nodes [3].vertexIndex, nodes [4].vertexIndex);
+			}
+			if (nodes.Length >= 6) {
+				CreateTriangle (nodes [0].vertexIndex, nodes [4].vertexIndex, nodes [5].vertexIndex);
+			}
+		}
 
-			CreateVertex (position);
+		private void CreateRoundCornerConvex (Vector3 position, float radius, int steps, CornerSide cornerSide)
+		{
+			List<Vector3> arcVertices = GetArcVertices (position, radius, steps, cornerSide);
+			int cornerIndex = CreateVertex (position);
+
 			CreateUvs (Vector2.zero);
 
-			for (float i = angleFrom; i <= angleTo+fix; i += angleStep) {
-				float x = position.x + radius * Mathf.Cos (i);
-				float y = position.z + radius * Mathf.Sin (i);
-				Vector3 p = new Vector3 (x, 0, y);
-
-				CreateVertex (p);
+			for (int i = 0; i < arcVertices.Count; i++) {
+				CreateVertex (arcVertices [i]);
 				CreateTriangle (cornerIndex, vertices.Count - 1, vertices.Count - 2);
 				CreateUvs (Vector2.zero);
 			}
 		}
 
-		private List<Vector3> GetArcVertices(Vector3 position, float radius, int steps, CornerSide cornerSide) {
+		private void CreateRoundCornerConcave (Vector3 position, float radius, int steps, CornerSide cornerSide)
+		{
+			
+		}
+
+		private List<Vector3> GetArcVertices (Vector3 position, float radius, int steps, CornerSide cornerSide)
+		{
 			List<Vector3> arcVertices = new List<Vector3> ();
 			float angleFrom = 0;
 			float angleTo = 0;
-			float fix = 0;
 
 			if (cornerSide == CornerSide.TopLeft) {
 				angleFrom = Mathf.PI / 2.0f;
@@ -551,20 +337,17 @@ namespace MapGenerator
 			if (cornerSide == CornerSide.BottomRight) {
 				angleFrom = (3.0f * Mathf.PI) / 2.0f;
 				angleTo = Mathf.PI * 2.0f;
-				fix = Mathf.Abs(angleFrom - angleTo) / (float)steps;
 			}
 			if (cornerSide == CornerSide.BottomLeft) {
 				angleFrom = Mathf.PI;
 				angleTo = (3.0f * Mathf.PI) / 2.0f;
-				fix = Mathf.Abs(angleFrom - angleTo) / (float)steps;
 			}
+				
+			float angleStep = Mathf.Abs (angleFrom - angleTo) / (float)steps;
 
-			int cornerIndex = vertices.Count;
-			float angleStep = Mathf.Abs(angleFrom - angleTo) / (float)steps;
-
-			for (float i = angleFrom; i <= angleTo+fix; i += angleStep) {
-				float x = position.x + radius * Mathf.Cos (i);
-				float y = position.z + radius * Mathf.Sin (i);
+			for (int i = 0; i <= steps; i++) {
+				float x = position.x + radius * Mathf.Cos (angleFrom + i * angleStep);
+				float y = position.z + radius * Mathf.Sin (angleFrom + i * angleStep);
 				Vector3 p = new Vector3 (x, 0, y);
 
 				arcVertices.Add (p);
