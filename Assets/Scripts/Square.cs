@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MapGenerator
+namespace MarchingSquaresGenerator
 {
 
 	public class Square

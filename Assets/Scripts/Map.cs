@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using UnityEditor;
 
-namespace MapGenerator
+namespace MarchingSquaresGenerator
 {
 	
 	public class Map
@@ -76,7 +75,7 @@ namespace MapGenerator
 					Color color = mapTexture.GetPixel (x, y);
 
 					SetValue (x, y, ColorToByte (color));
-					SetPosition (x, y, new Vector3 (x - width * 0.5f, 0, y - height * 0.5f));
+					SetPosition (x, y, new Vector3 (x - width * 0.5f, y - height * 0.5f, 0));
 				}
 			}
 		}
@@ -88,7 +87,8 @@ namespace MapGenerator
 			if (seed != "") {
 				Random.InitState (seed.GetHashCode ());
 			} else {
-				Random.InitState (EditorApplication.timeSinceStartup.ToString ().GetHashCode ());
+//				Random.InitState (EditorApplication.timeSinceStartup.ToString ().GetHashCode ());
+				Random.InitState (Time.timeSinceLevelLoad.ToString().GetHashCode());
 			}
 
 			for (int y = 0; y < height; y++) {
@@ -96,7 +96,7 @@ namespace MapGenerator
 					int isWall = Random.Range (0, 100) < fillPercent ? 1 : 0;
 
 					SetValue (x, y, (byte)isWall);
-					SetPosition (x, y, new Vector3 (x - width * 0.5f, 0, y - height * 0.5f));
+					SetPosition (x, y, new Vector3 (x - width * 0.5f, y - height * 0.5f, 0));
 				}
 			}
 		}

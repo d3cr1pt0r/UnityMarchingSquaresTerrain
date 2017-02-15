@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace MapGenerator
+namespace MarchingSquaresGenerator
 {
 	[CustomEditor (typeof(MapGenerator))]
 	public class MapGeneratorEditor : Editor

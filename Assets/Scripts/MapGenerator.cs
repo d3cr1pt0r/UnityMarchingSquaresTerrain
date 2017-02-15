@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 
-namespace MapGenerator
+namespace MarchingSquaresGenerator
 {
 	
 	public class MapGenerator : MonoBehaviour
@@ -18,10 +19,14 @@ namespace MapGenerator
 		[SerializeField] private int height = 25;
 		[SerializeField] private int smoothIterations = 8;
 		[SerializeField] private int fillPercent = 50;
+		[SerializeField] private int edgeSteps = 11;
 		[SerializeField] private string seed = "";
 
 		[Header ("Tile settings")]
 		[SerializeField] private Sprite[] spriteTiles = null;
+
+		[Header("Collider")]
+		[SerializeField] private GameObject edgeColliderPrefab = null;
 
 		[Header ("Debug")]
 		[SerializeField] private GameObject DebugNumberPrefab = null;
@@ -41,7 +46,7 @@ namespace MapGenerator
 
 			map = new Map (mapTexture);
 			meshGenerator = new MeshGenerator (map);
-			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles, 11);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (edgeSteps);
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
@@ -49,6 +54,8 @@ namespace MapGenerator
 			if (configurationNumberDebug) {
 				GenerateConfigurationNumberDebug ();
 			}
+
+			GenerateEdgeColliders (meshGenerator.GetEdgeColliderPoints ());
 		}
 
 		public void GenerateRandom ()
@@ -58,7 +65,7 @@ namespace MapGenerator
 
 			map = new Map (width, height, fillPercent, seed, smoothIterations);
 			meshGenerator = new MeshGenerator (map);
-			Mesh mesh = meshGenerator.GenerateMeshRounded (spriteTiles, 11);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (edgeSteps);
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
@@ -80,6 +87,35 @@ namespace MapGenerator
 					GameObject go = Instantiate (DebugNumberPrefab, position, Quaternion.Euler (new Vector3 (90, 0, 0)));
 					go.GetComponent<TextMesh> ().text = configuration.ToString ();
 				}
+			}
+		}
+
+		private void GenerateEdgeColliders(List<List<Vector2>> edgeColliderPoints) {
+			// remove all previous edge collider game objects
+			GameObject edgeColliderContainer = GameObject.Find("EdgeColliders");
+			if (edgeColliderContainer != null) {
+				DestroyImmediate (edgeColliderContainer);
+			}
+
+			GameObject edgeColliderContainerGO = new GameObject ("EdgeColliders");
+			edgeColliderContainerGO.transform.SetParent (transform);
+				
+			for (int i = 0; i < edgeColliderPoints.Count; i++) {
+				List<Vector2> edgePoints = edgeColliderPoints [i];
+				GameObject edgeColliderGO = Instantiate (edgeColliderPrefab, Vector3.zero, Quaternion.Euler(new Vector3(0, 0, 0)));
+				EdgeCollider2D edgeCollider = edgeColliderGO.GetComponent<EdgeCollider2D> ();
+
+				edgeCollider.Reset ();
+
+//				Debug.Log ("START");
+//				for (int j = 0; j < edgePoints.Count; j++) {
+//					Debug.Log (string.Format ("{0} {1}", edgePoints [j].x, edgePoints [j].y));
+//				}
+
+				edgeCollider.points = edgePoints.ToArray ();
+
+				edgeColliderGO.transform.SetParent (edgeColliderContainerGO.transform);
+				edgeColliderGO.transform.localPosition = Vector3.zero;
 			}
 		}
 

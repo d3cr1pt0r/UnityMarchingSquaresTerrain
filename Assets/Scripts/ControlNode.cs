@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MapGenerator
+namespace MarchingSquaresGenerator
 {
 	public class ControlNode : Node
 	{
@@ -13,7 +13,7 @@ namespace MapGenerator
 		public ControlNode (Vector3 position, byte value) : base (position)
 		{
 			this.value = value;
-			nodeUp = new Node (position + Vector3.forward * 0.5f);
+			nodeUp = new Node (position + Vector3.up * 0.5f);
 			nodeRight = new Node (position + Vector3.right * 0.5f);
 		}
 	}
