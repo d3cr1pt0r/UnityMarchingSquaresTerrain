@@ -22,9 +22,6 @@ namespace MarchingSquaresGenerator
 		[SerializeField] private int edgeSteps = 11;
 		[SerializeField] private string seed = "";
 
-		[Header ("Tile settings")]
-		[SerializeField] private Sprite[] spriteTiles = null;
-
 		[Header("Collider")]
 		[SerializeField] private GameObject edgeColliderPrefab = null;
 
@@ -51,11 +48,11 @@ namespace MarchingSquaresGenerator
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
 
+			GenerateEdgeColliders (meshGenerator.GetEdgeColliderPoints ());
+
 			if (configurationNumberDebug) {
 				GenerateConfigurationNumberDebug ();
 			}
-
-			GenerateEdgeColliders (meshGenerator.GetEdgeColliderPoints ());
 		}
 
 		public void GenerateRandom ()
@@ -69,6 +66,8 @@ namespace MarchingSquaresGenerator
 
 			meshFilter.mesh = mesh;
 			meshRenderer.material = mapMaterial;
+
+			GenerateEdgeColliders (meshGenerator.GetEdgeColliderPoints ());
 
 			if (configurationNumberDebug) {
 				GenerateConfigurationNumberDebug ();
@@ -91,7 +90,6 @@ namespace MarchingSquaresGenerator
 		}
 
 		private void GenerateEdgeColliders(List<List<Vector2>> edgeColliderPoints) {
-			// remove all previous edge collider game objects
 			GameObject edgeColliderContainer = GameObject.Find("EdgeColliders");
 			if (edgeColliderContainer != null) {
 				DestroyImmediate (edgeColliderContainer);
@@ -106,12 +104,6 @@ namespace MarchingSquaresGenerator
 				EdgeCollider2D edgeCollider = edgeColliderGO.GetComponent<EdgeCollider2D> ();
 
 				edgeCollider.Reset ();
-
-//				Debug.Log ("START");
-//				for (int j = 0; j < edgePoints.Count; j++) {
-//					Debug.Log (string.Format ("{0} {1}", edgePoints [j].x, edgePoints [j].y));
-//				}
-
 				edgeCollider.points = edgePoints.ToArray ();
 
 				edgeColliderGO.transform.SetParent (edgeColliderContainerGO.transform);
