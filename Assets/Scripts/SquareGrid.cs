@@ -16,8 +16,8 @@ namespace MarchingSquaresGenerator
 		{
 			squares = new Square[map.width - 1, map.height - 1];
 
-			for (int y = 0; y < width; y++) {
-				for (int x = 0; x < height; x++) {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
 					float xPos = map.GetPosition (x, y).x + 0.5f;
 					float yPos = map.GetPosition (x, y).y + 0.5f;
 

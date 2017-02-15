@@ -23,6 +23,10 @@ namespace MarchingSquaresGenerator
 				mapGenerator.GenerateRandom ();
 				SceneView.RepaintAll ();
 			}
+			if (GUILayout.Button ("Clear")) {
+				mapGenerator.Clear ();
+				SceneView.RepaintAll ();
+			}
 		}
 
 	}

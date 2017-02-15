@@ -13,9 +13,9 @@ namespace MarchingSquaresGenerator
 
 		public int height { get { return values.GetLength (1); } private set { } }
 
-		public Map ()
+		public Map (int width, int height)
 		{
-			
+			Init (width, height);
 		}
 
 		public Map (Texture2D mapTexture)
@@ -51,9 +51,17 @@ namespace MarchingSquaresGenerator
 			values [x, y] = value;
 		}
 
+		public void SetValue(Vector2 position, byte value) {
+			SetValue ((int)position.x, (int)position.y, value);
+		}
+
 		public void SetPosition (int x, int y, Vector3 position)
 		{
 			positions [x, y] = position;
+		}
+
+		public void SetPosition(Vector2 p, Vector3 position) {
+			SetPosition ((int)p.x, (int)p.y, position);
 		}
 
 		public byte GetValue (int x, int y)
@@ -64,6 +72,14 @@ namespace MarchingSquaresGenerator
 		public Vector3 GetPosition (int x, int y)
 		{
 			return positions [x, y];
+		}
+
+		public void FillPositionsFromValues() {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					SetPosition (x, y, new Vector3 (x - width * 0.5f, y - height * 0.5f, 0));
+				}
+			}
 		}
 
 		public void LoadFromTexture (Texture2D mapTexture)

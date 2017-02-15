@@ -36,6 +36,23 @@ namespace MarchingSquaresGenerator
 		private Map map = null;
 		private MeshGenerator meshGenerator = null;
 
+		public void GenerateFromMap(Map map) {
+			if (meshFilter == null)
+				return;
+
+			meshGenerator = new MeshGenerator (map);
+			Mesh mesh = meshGenerator.GenerateMeshRounded (edgeSteps);
+
+			meshFilter.mesh = mesh;
+			meshRenderer.material = mapMaterial;
+
+//			GenerateEdgeColliders (meshGenerator.GetEdgeColliderPoints ());
+
+			if (configurationNumberDebug) {
+				GenerateConfigurationNumberDebug ();
+			}
+		}
+
 		public void GenerateFromTexture ()
 		{
 			if (mapTexture == null || meshFilter == null)
@@ -71,6 +88,15 @@ namespace MarchingSquaresGenerator
 
 			if (configurationNumberDebug) {
 				GenerateConfigurationNumberDebug ();
+			}
+		}
+
+		public void Clear() {
+			meshFilter.mesh = null;
+
+			GameObject edgeColliderContainer = GameObject.Find("EdgeColliders");
+			if (edgeColliderContainer != null) {
+				DestroyImmediate (edgeColliderContainer);
 			}
 		}
 
